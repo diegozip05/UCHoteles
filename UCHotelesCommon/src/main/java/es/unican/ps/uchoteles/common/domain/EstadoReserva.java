@@ -1,8 +1,6 @@
 package es.unican.ps.uchoteles.common.domain;
 
-public enum EstadoReserva
-{
+public enum EstadoReserva {
     BLOQUEADA,
     CONFIRMADA
-
 }
