@@ -13,6 +13,7 @@
 
 
     <modules>
+        <module>UCHotelesCommon</module>
     </modules>
 
     <properties>
