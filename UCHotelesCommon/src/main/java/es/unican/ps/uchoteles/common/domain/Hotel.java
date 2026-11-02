@@ -11,7 +11,6 @@ public class Hotel {
     private String localidad;
     private Categoria categoria;
     private List<Habitacion> habitaciones = new ArrayList<>();
-    // Navegabilidad Hotel -> Reserva (feedback de la profe)
     private List<Reserva> reservas = new ArrayList<>();
 
     public Hotel() {
@@ -24,7 +23,6 @@ public class Hotel {
         this.categoria = categoria;
     }
 
-    // Devuelve la habitación del tipo indicado, o null si el hotel no tiene ese tipo
     public Habitacion getHabitacion(TipoHabitacion tipo) {
         for (Habitacion h : habitaciones) {
             if (h.getTipo() == tipo) {
