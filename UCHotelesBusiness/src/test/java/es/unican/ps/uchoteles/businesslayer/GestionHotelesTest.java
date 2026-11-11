@@ -27,24 +27,42 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+/**
+ * Pruebas unitarias de {@link GestionHoteles#consultarDisponibilidad} (Tabla 2 del plan de pruebas).
+ * Los DAO se sustituyen por mocks de Mockito. Todos los casos usan el hotel Bahía, con 5 dobles y
+ * 3 individuales, y salvo que se indique otra cosa la consulta es del 10/12/2026 al 12/12/2026.
+ */
 @ExtendWith(MockitoExtension.class)
 class GestionHotelesTest {
 
+    /** DAO de reservas simulado. */
     @Mock
     private IReservasDAO reservasDAO;
 
+    /** DAO de hoteles simulado. */
     @Mock
     private IHotelesDAO hotelesDAO;
 
+    /** Componente que se prueba, con los mocks inyectados. */
     @InjectMocks
     private GestionHoteles gestionHoteles;
 
+    /** Hotel Bahía. */
     private Hotel hotel;
+
+    /** Habitación doble del hotel (5 disponibles). */
     private Habitacion doble;
+
+    /** Habitación individual del hotel (3 disponibles). */
     private Habitacion individual;
+
+    /** Fecha de entrada de la consulta. */
     private final LocalDate entrada = LocalDate.of(2026, 12, 10);
+
+    /** Fecha de salida de la consulta. */
     private final LocalDate salida = LocalDate.of(2026, 12, 12);
 
+    /** Crea un hotel nuevo antes de cada prueba para que sean independientes. */
     @BeforeEach
     void setUp() {
         hotel = new Hotel("Bahía", "Calle Ejemplo 1", "Santander", Categoria.FOUR_STARS);
@@ -54,6 +72,17 @@ class GestionHotelesTest {
         hotel.getHabitaciones().add(individual);
     }
 
+    /**
+     * Crea una reserva del hotel Bahía en diciembre de 2026.
+     *
+     * @param diaEntrada      día de entrada
+     * @param diaSalida       día de salida
+     * @param estado          estado de la reserva
+     * @param minutosBloqueo  hace cuántos minutos se bloqueó
+     * @param numDobles       habitaciones dobles reservadas
+     * @param numIndividuales habitaciones individuales reservadas
+     * @return la reserva
+     */
     private Reserva crearReserva(int diaEntrada, int diaSalida, EstadoReserva estado,
                                  int minutosBloqueo, int numDobles, int numIndividuales) {
         Reserva r = new Reserva(LocalDate.of(2026, 12, diaEntrada), LocalDate.of(2026, 12, diaSalida),
@@ -67,6 +96,11 @@ class GestionHotelesTest {
         return r;
     }
 
+    /**
+     * UGH.1a: sin reservas, todas las habitaciones están libres.
+     *
+     * @throws Exception si falla la consulta
+     */
     @Test
     @DisplayName("UGH.1a Sin reservas")
     void sinReservas() throws Exception {
@@ -78,6 +112,11 @@ class GestionHotelesTest {
         assertEquals(3, libres.get(individual));
     }
 
+    /**
+     * UGH.1b: una reserva confirmada que se solapa resta sus habitaciones.
+     *
+     * @throws Exception si falla la consulta
+     */
     @Test
     @DisplayName("UGH.1b Reserva confirmada que se solapa")
     void reservaQueSeSolapa() throws Exception {
@@ -90,6 +129,11 @@ class GestionHotelesTest {
         assertEquals(3, libres.get(individual));
     }
 
+    /**
+     * UGH.1c: una reserva confirmada de otras fechas no cuenta.
+     *
+     * @throws Exception si falla la consulta
+     */
     @Test
     @DisplayName("UGH.1c Reserva confirmada que no se solapa")
     void reservaQueNoSeSolapa() throws Exception {
@@ -102,6 +146,11 @@ class GestionHotelesTest {
         assertEquals(3, libres.get(individual));
     }
 
+    /**
+     * UGH.1d: una reserva que sale el día que empieza la consulta no cuenta (valor límite).
+     *
+     * @throws Exception si falla la consulta
+     */
     @Test
     @DisplayName("UGH.1d Reserva que se va el día que empieza la consulta (valor límite)")
     void reservaQueSaleElDiaDeEntrada() throws Exception {
@@ -114,6 +163,11 @@ class GestionHotelesTest {
         assertEquals(3, libres.get(individual));
     }
 
+    /**
+     * UGH.1e: una reserva bloqueada hace 5 minutos sí ocupa habitaciones.
+     *
+     * @throws Exception si falla la consulta
+     */
     @Test
     @DisplayName("UGH.1e Reserva bloqueada hace 5 minutos")
     void reservaBloqueadaVigente() throws Exception {
@@ -126,6 +180,11 @@ class GestionHotelesTest {
         assertEquals(3, libres.get(individual));
     }
 
+    /**
+     * UGH.1f: una reserva bloqueada hace 15 minutos ya no ocupa habitaciones.
+     *
+     * @throws Exception si falla la consulta
+     */
     @Test
     @DisplayName("UGH.1f Reserva bloqueada hace 15 minutos (bloqueo caducado)")
     void reservaBloqueadaCaducada() throws Exception {
@@ -138,6 +197,11 @@ class GestionHotelesTest {
         assertEquals(3, libres.get(individual));
     }
 
+    /**
+     * UGH.1g: si no queda ninguna habitación libre se lanza la excepción del flujo 4a.
+     *
+     * @throws Exception si falla la consulta
+     */
     @Test
     @DisplayName("UGH.1g Hotel completo")
     void hotelCompleto() throws Exception {
@@ -150,6 +214,7 @@ class GestionHotelesTest {
         assertEquals("No hay disponibilidad, pruebe otras fechas", e.getMessage());
     }
 
+    /** UGH.1h: si la salida es anterior a la entrada se lanza OperacionNoValidaException. */
     @Test
     @DisplayName("UGH.1h Fechas al revés")
     void fechasAlReves() {
@@ -157,6 +222,9 @@ class GestionHotelesTest {
                 () -> gestionHoteles.consultarDisponibilidad(hotel, salida, entrada));
     }
 
+    /**
+     * UGH.1i: si la entrada y la salida son el mismo día se lanza OperacionNoValidaException (valor límite).
+     */
     @Test
     @DisplayName("UGH.1i Misma fecha de entrada y de salida (valor límite)")
     void mismaFecha() {
