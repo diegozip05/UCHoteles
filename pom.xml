@@ -12,6 +12,8 @@
     <modules>
         <module>UCHotelesCommon</module>
         <module>UCHotelesBusiness</module>
+        <module>UCHotelesDAO</module>
+        <module>UCHotelesEAR</module>
     </modules>
 
     <properties>
