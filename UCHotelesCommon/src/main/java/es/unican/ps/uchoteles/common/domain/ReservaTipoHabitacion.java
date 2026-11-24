@@ -1,24 +1,43 @@
 package es.unican.ps.uchoteles.common.domain;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
 /**
  * Línea de una reserva: cuántas habitaciones de un tipo se reservan y a qué precio.
  * El precio se guarda al crear la línea para que el importe no cambie si el hotel modifica sus precios.
  */
+@Entity
+@Table(name = "ReservasTipoHabitacion")
 public class ReservaTipoHabitacion {
 
     /** El identificador de la línea. */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /** El número de habitaciones reservadas de este tipo. */
+    @Column(name = "numHabs")
     private int numHabitaciones;
 
     /** El precio por noche guardado al hacer la reserva. */
+    @Column(name = "precio")
     private double precioPorNoche;
 
     /** El tipo de habitación reservado. */
+    @ManyToOne
+    @JoinColumn(name = "Habitacion_FK")
     private Habitacion habitacion;
 
     /** La reserva a la que pertenece la línea. */
+    @ManyToOne
+    @JoinColumn(name = "Reserva_FK")
     private Reserva reserva;
 
     /** Crea una línea vacía. Lo necesita JPA para crear el objeto al leerlo de la base de datos. */

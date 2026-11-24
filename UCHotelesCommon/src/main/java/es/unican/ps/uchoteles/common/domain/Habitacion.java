@@ -1,23 +1,44 @@
 package es.unican.ps.uchoteles.common.domain;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
 /**
  * Tipo de habitación de un hotel, con su precio por noche y el número de habitaciones
  * de ese tipo que tiene el hotel. No representa una habitación física concreta.
  */
+@Entity
+@Table(name = "Habitaciones")
 public class Habitacion {
     /** El identificador de la habitación. */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /** El tipo de habitación. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo")
     private TipoHabitacion tipo;
 
     /** El precio por noche de una habitación de este tipo. */
+    @Column(name = "precio")
     private double precioPorNoche;
 
     /** El número de habitaciones de este tipo que tiene el hotel. */
+    @Column(name = "numDisp")
     private int disponibles;
 
     /** El hotel al que pertenece. */
+    @ManyToOne
+    @JoinColumn(name = "Hotel_FK")
     private Hotel hotel;
 
     /**

@@ -1,20 +1,32 @@
 package es.unican.ps.uchoteles.common.domain;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+
 /** Datos de la tarjeta con la que se paga una reserva. */
+@Embeddable
 public class DatosPago {
     /** El número de la tarjeta. */
+    @Column(name = "numTarj")
     private String numTarjeta;
 
     /** El código de seguridad (CVC) de la tarjeta. */
+    @Column(name = "cvc")
     private String cvc;
 
     /** El mes de caducidad de la tarjeta (de 1 a 12). */
+    @Column(name = "mesCad")
     private int mesCaducidad;
 
     /** El año de caducidad de la tarjeta. */
+    @Column(name = "anhoCad")
     private int anhoCaducidad;
 
     /** El tipo de tarjeta. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipoTarj")
     private TipoTarjeta tipo;
 
     /**

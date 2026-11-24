@@ -1,30 +1,53 @@
 package es.unican.ps.uchoteles.common.domain;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /** Hotel de la cadena, con sus tipos de habitación y sus reservas. */
+@Entity
+@Table(name = "Hoteles")
 public class Hotel {
 
     /** El identificador del hotel. */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /** El nombre del hotel. */
+    @Column(name = "nombre", unique = true, nullable = false)
     private String nombre;
 
     /** La dirección del hotel. */
+    @Column(name = "direcc")
     private String direccion;
 
     /** La localidad en la que está el hotel. */
+    @Column(name = "localid")
     private String localidad;
 
     /** La categoría (número de estrellas) del hotel. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "categ")
     private Categoria categoria;
 
     /** Los tipos de habitación del hotel. */
+    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Habitacion> habitaciones = new ArrayList<>();
 
     /** Las reservas del hotel. */
+    @OneToMany(mappedBy = "hotel")
     private List<Reserva> reservas = new ArrayList<>();
 
     /** Crea un hotel vacío. Lo necesita JPA para crear el objeto al leerlo de la base de datos. */

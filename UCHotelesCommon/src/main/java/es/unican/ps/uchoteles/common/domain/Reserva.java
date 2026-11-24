@@ -1,5 +1,20 @@
 package es.unican.ps.uchoteles.common.domain;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -10,33 +25,47 @@ import java.util.List;
  * Reserva de una o varias habitaciones de un hotel para unas fechas.
  * Cada tipo de habitación reservado es una línea ({@link ReservaTipoHabitacion}).
  */
+@Entity
+@Table(name = "Reservas")
 public class Reserva {
 
     /** El identificador (número) de la reserva. */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /** La fecha de entrada. */
+    @Column(name = "fEntrada")
     private LocalDate fechaEntrada;
 
     /** La fecha de salida. */
+    @Column(name = "fSalida")
     private LocalDate fechaSalida;
 
     /** El estado de la reserva. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado")
     private EstadoReserva estado;
 
     /** El instante en el que se bloquearon las habitaciones. */
+    @Column(name = "fBloqueo")
     private LocalDateTime fechaBloqueo;
 
     /** El hotel de la reserva. */
+    @ManyToOne
+    @JoinColumn(name = "Hotel_FK")
     private Hotel hotel;
 
     /** Los datos del cliente. */
+    @Embedded
     private DatosCliente cliente;
 
     /** Los datos de pago. */
+    @Embedded
     private DatosPago datosPago;
 
     /** Las líneas de la reserva, una por cada tipo de habitación. */
+    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<ReservaTipoHabitacion> reservasPorTipo = new ArrayList<>();
 
     /**

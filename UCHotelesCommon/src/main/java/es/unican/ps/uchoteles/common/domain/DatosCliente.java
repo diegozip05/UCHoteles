@@ -1,21 +1,30 @@
 package es.unican.ps.uchoteles.common.domain;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+
 /** Datos personales del cliente que hace una reserva. */
+@Embeddable
 public class DatosCliente {
 
     /** El DNI del cliente. */
+    @Column(name = "dni")
     private String dni;
 
     /** El nombre del cliente. */
+    @Column(name = "nombre")
     private String nombre;
 
     /** El primer apellido del cliente. */
+    @Column(name = "apell1")
     private String primerApellido;
 
     /** El segundo apellido del cliente. */
+    @Column(name = "apell2")
     private String segundoApellido;
 
     /** El correo electrónico del cliente. */
+    @Column(name = "email")
     private String email;
 
     /**
