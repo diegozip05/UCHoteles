@@ -3,90 +3,91 @@ package es.unican.ps.uchoteles.daolayer;
 import es.unican.ps.uchoteles.common.daolayer.IReservasDAO;
 import es.unican.ps.uchoteles.common.domain.Hotel;
 import es.unican.ps.uchoteles.common.domain.Reserva;
-import es.unican.ps.uchoteles.common.domain.ReservaTipoHabitacion;
 import es.unican.ps.uchoteles.common.exceptions.DataAccessException;
 import jakarta.ejb.Local;
-import jakarta.ejb.Singleton;
+import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Implementación provisional de {@link IReservasDAO} que guarda las reservas en memoria.
- * Se sustituirá por una implementación con JPA en la práctica 3.3.
- */
-@Singleton
+/** Implementación de {@link IReservasDAO} que guarda las reservas en la base de datos con JPA. */
+@Stateless
 @Local(IReservasDAO.class)
 public class ReservasDAO implements IReservasDAO {
 
-    /** Reservas guardadas. */
-    private final List<Reserva> reservas = new ArrayList<>();
-
-    /** Siguiente identificador que se asignará a una reserva o a una de sus líneas. */
-    private long siguienteId = 1;
+    /** Gestor de entidades con el que se accede a la base de datos. */
+    @PersistenceContext(unitName = "UCHotelesPU")
+    private EntityManager em;
 
     @Override
     public Reserva crearReserva(Reserva r) throws DataAccessException {
-        asignarIds(r);
-        reservas.add(r);
-        return r;
+        try {
+            em.persist(r);
+            em.flush();
+            return r;
+        } catch (PersistenceException e) {
+            throw new DataAccessException("Error al crear la reserva", e);
+        }
     }
 
     @Override
     public Reserva reservaPorId(Long id) throws DataAccessException {
-        for (Reserva r : reservas) {
-            if (r.getId().equals(id)) {
-                return r;
+        try {
+            if (id == null) {
+                return null;
             }
+            return em.find(Reserva.class, id);
+        } catch (PersistenceException e) {
+            throw new DataAccessException("Error al buscar la reserva", e);
         }
-        return null;
     }
 
     @Override
     public Reserva modificarReserva(Reserva r) throws DataAccessException {
-        Reserva guardada = reservaPorId(r.getId());
-        if (guardada == null) {
-            return null;
+        try {
+            if (r.getId() == null || em.find(Reserva.class, r.getId()) == null) {
+                return null;
+            }
+            Reserva actualizada = em.merge(r);
+            em.flush();
+            return actualizada;
+        } catch (PersistenceException e) {
+            throw new DataAccessException("Error al modificar la reserva", e);
         }
-        asignarIds(r);
-        reservas.set(reservas.indexOf(guardada), r);
-        return r;
     }
 
     @Override
     public Reserva eliminarReserva(Reserva r) throws DataAccessException {
-        Reserva guardada = reservaPorId(r.getId());
-        if (guardada != null) {
-            reservas.remove(guardada);
+        try {
+            if (r.getId() == null) {
+                return null;
+            }
+            Reserva guardada = em.find(Reserva.class, r.getId());
+            if (guardada == null) {
+                return null;
+            }
+            em.remove(guardada);
+            em.flush();
+            return guardada;
+        } catch (PersistenceException e) {
+            throw new DataAccessException("Error al eliminar la reserva", e);
         }
-        return guardada;
     }
 
     @Override
     public List<Reserva> reservasPorHotel(Hotel h) throws DataAccessException {
-        List<Reserva> resultado = new ArrayList<>();
-        for (Reserva r : reservas) {
-            if (r.getHotel() != null && r.getHotel().getId().equals(h.getId())) {
-                resultado.add(r);
+        try {
+            if (h == null || h.getId() == null) {
+                return new ArrayList<>();
             }
-        }
-        return resultado;
-    }
-
-    /**
-     * Asigna identificador a la reserva y a sus líneas si todavía no lo tienen,
-     * igual que haría la base de datos al guardarlas.
-     *
-     * @param r reserva
-     */
-    private void asignarIds(Reserva r) {
-        if (r.getId() == null) {
-            r.setId(siguienteId++);
-        }
-        for (ReservaTipoHabitacion rth : r.getReservasPorTipo()) {
-            if (rth.getId() == null) {
-                rth.setId(siguienteId++);
-            }
+            return em.createQuery("SELECT r FROM Reserva r WHERE r.hotel.id = :idHotel", Reserva.class)
+                    .setParameter("idHotel", h.getId())
+                    .getResultList();
+        } catch (PersistenceException e) {
+            throw new DataAccessException("Error al buscar las reservas del hotel", e);
         }
     }
 }
