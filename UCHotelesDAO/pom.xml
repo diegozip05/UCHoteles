@@ -40,6 +40,13 @@
             <version>1.4.200</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>es.unican.ps</groupId>
+            <artifactId>UCHotelesBusiness</artifactId>
+            <version>${project.version}</version>
+            <type>ejb</type>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
