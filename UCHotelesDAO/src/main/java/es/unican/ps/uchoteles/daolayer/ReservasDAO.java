@@ -18,9 +18,9 @@ import java.util.List;
 @Local(IReservasDAO.class)
 public class ReservasDAO implements IReservasDAO {
 
-    /** Gestor de entidades con el que se accede a la base de datos. */
+    /** Gestor de entidades con el que se accede a la base de datos. Visible en el paquete para las pruebas. */
     @PersistenceContext(unitName = "UCHotelesPU")
-    private EntityManager em;
+    EntityManager em;
 
     @Override
     public Reserva crearReserva(Reserva r) throws DataAccessException {
