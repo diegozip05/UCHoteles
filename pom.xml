@@ -13,6 +13,7 @@
         <module>UCHotelesCommon</module>
         <module>UCHotelesBusiness</module>
         <module>UCHotelesDAO</module>
+        <module>UCHotelesWeb</module>
         <module>UCHotelesEAR</module>
     </modules>
 
